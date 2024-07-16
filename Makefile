@@ -3,7 +3,7 @@ OBJDIR = objets
 OBJ = $(addprefix $(OBJDIR)/,$(SRC:.c=.o))
 LIBFT = Libft
 LIBFT_A = $(LIBFT)/libft.a
-FLAGS = -fsanitize=address -fdiagnostics-color=always -g3 -Wall -Wextra -g3 #-Werror
+FLAGS = -fdiagnostics-color=always -Wall -Wextra -Werror #-fsanitize=address -g3
 LIBS = -L$(LIBFT) -lft
 
 SRC = pipex.c \

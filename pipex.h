@@ -19,6 +19,7 @@ typedef struct s_data
 {
 	char	*path;
 	char	**envp;
+	char	**split;
 	char	*infile;
 	char	*outfile;
 	char	**cmd;
@@ -37,9 +38,9 @@ void		execute_parent(t_data *data, int cmd_index, int num_cmds,
 
 // tools.c
 void		initialize(t_data *data, int ac, char **av, char **envp);
-void		free_all(t_data *data, int error, char *message);
+void		free_all_stop(t_data *data, int error, char *message);
 void		check_file(t_data *data, char *path);
 void		redirect_output(t_data *data);
-void		get_path(t_data *data, char **envp);
+void		get_path_cmd(t_data *data, char **envp, char *cmd);
 
 #endif
