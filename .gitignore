@@ -1,0 +1,6 @@
+
+/Libft
+*.o
+*.a
+pipex-tester
+/.vscode
