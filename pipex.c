@@ -1,35 +1,14 @@
 #include "pipex.h"
 
-int	open_file(t_data *data, const char *file)
-{
-	int	fd;
-
-	fd = open(file, O_RDONLY);
-	if (fd == -1)
-	{
-		perror("open_file: open");
-		free_all_stop(data, 1, "1");
-	}
-	return (fd);
-}
-
 void	execute_pipeline(t_data *data, int cmd_index, int num_cmds,
 		int input_fd)
 {
 	if (cmd_index < num_cmds - 1)
-	{
 		if (pipe(data->fd) == -1)
-		{
-			perror("pipe");
 			free_all_stop(data, 1, "1");
-		}
-	}
 	data->pid = fork();
 	if (data->pid == -1)
-	{
-		perror("fork");
 		free_all_stop(data, 1, "1");
-	}
 	if (data->pid == 0)
 		execute_child(data, cmd_index, num_cmds, input_fd);
 	else
@@ -73,6 +52,41 @@ void	execute_parent(t_data *data, int cmd_index, int num_cmds, int input_fd)
 	waitpid(data->pid, NULL, 0);
 }
 
+static void	initialize(t_data *data, int ac, char **av)
+{
+	int	i;
+
+	data->cmd = ft_calloc(ac - 2, sizeof(char *));
+	if (!data->cmd)
+		free_all_stop(data, 1, NULL);
+	if (data->limiter == NULL)
+	{
+		if (access(av[1], F_OK) == -1 || access(av[1], R_OK) == -1)
+			free_all_stop(data, 1, "1");
+		data->infile = av[1];
+	}
+	else
+		data->infile = FILE_TEMP;
+	data->outfile = av[ac - 1];
+	i = -1;
+	while (++i < ac - 3)
+	{
+		data->split = ft_split(av[i + 2], ' ');
+		get_path_cmd(data, data->envp, data->split[0]);
+		data->split = free_all_split(data->split);
+		free(data->path);
+		data->path = NULL;
+		data->cmd[i] = av[i + 2];
+	}
+}
+
+void	here_doc(t_data *data, int *ac, char ***av)
+{
+	data->limiter = av[0][2];
+	*ac -= 1;
+	*av += 1;
+}
+
 int	main(int ac, char **av, char **envp)
 {
 	t_data	data;
@@ -84,8 +98,17 @@ int	main(int ac, char **av, char **envp)
 			Usage: infile \"command 1\" \"command 2\" output file\n");
 		return (1);
 	}
-	initialize(&data, ac, av, envp);
-	input_fd = open_file(&data, data.infile);
+	data.envp = envp;
+	data.path = NULL;
+	data.split = NULL;
+	data.cmd = NULL;
+	if (ft_strncmp(av[1], "here_doc", 8) == 0)
+		here_doc(&data, &ac, &av);
+	printf("av[0] = %s\n", av[0]);
+	initialize(&data, ac, av);
+	printf("infile: %s\noutfile: %s\n", data.infile, data.outfile);
+	exit(0);
+	input_fd = open(data.infile, O_RDONLY);
 	if (input_fd == -1)
 		free_all_stop(&data, 1, "1");
 	execute_pipeline(&data, 0, ac - 3, input_fd);

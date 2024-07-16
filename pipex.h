@@ -15,11 +15,15 @@
 #  define BONUS 0
 # endif
 
+// STRING
+# define FILE_TEMP ".here_doc_tmp"
+
 typedef struct s_data
 {
 	char	*path;
 	char	**envp;
 	char	**split;
+	char	*limiter;
 	char	*infile;
 	char	*outfile;
 	char	**cmd;
@@ -37,9 +41,7 @@ void		execute_parent(t_data *data, int cmd_index, int num_cmds,
 				int input_fd);
 
 // tools.c
-void		initialize(t_data *data, int ac, char **av, char **envp);
 void		free_all_stop(t_data *data, int error, char *message);
-void		check_file(t_data *data, char *path);
 void		redirect_output(t_data *data);
 void		get_path_cmd(t_data *data, char **envp, char *cmd);
 

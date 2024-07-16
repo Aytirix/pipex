@@ -1,36 +1,11 @@
 #include "pipex.h"
 
-void	initialize(t_data *data, int ac, char **av, char **envp)
-{
-	int	i;
-
-	data->envp = envp;
-	data->path = NULL;
-	data->split = NULL;
-	data->cmd = NULL;
-	data->cmd = ft_calloc(ac - 2, sizeof(char *));
-	if (!data->cmd)
-		free_all_stop(data, 1, NULL);
-	check_file(data, av[1]);
-	data->infile = av[1];
-	data->outfile = av[ac - 1];
-	i = 0;
-	while (i < ac - 3)
-	{
-		data->split = ft_split(av[i + 2], ' ');
-		get_path_cmd(data, envp, data->split[0]);
-		data->split = free_all_split(data->split);
-		data->cmd[i] = av[i + 2];
-		free(data->path);
-		data->path = NULL;
-		i++;
-	}
-}
-
 void	free_all_stop(t_data *data, int error, char *message)
 {
 	int	len;
 
+	if (data->limiter)
+		unlink(FILE_TEMP);
 	if (data->path)
 		free(data->path);
 	if (data->cmd)
@@ -43,9 +18,8 @@ void	free_all_stop(t_data *data, int error, char *message)
 			write(STDERR_FILENO, strerror(errno), ft_strlen(strerror(errno)));
 		else if (message)
 		{
-			len = ft_strlen(message);
-			write(STDERR_FILENO, message, len);
-			if (message[len - 1] != '\n')
+			write(STDERR_FILENO, message, ft_strlen(message));
+			if (message[ft_strlen(message) - 1] != '\n')
 				write(STDERR_FILENO, "\n", 1);
 		}
 		if (error == 2)
@@ -53,14 +27,6 @@ void	free_all_stop(t_data *data, int error, char *message)
 		exit(EXIT_FAILURE);
 	}
 	exit(EXIT_SUCCESS);
-}
-
-void	check_file(t_data *data, char *path)
-{
-	if (access(path, F_OK) == -1)
-		free_all_stop(data, 1, "1");
-	else if (access(path, R_OK) == -1)
-		free_all_stop(data, 1, "1");
 }
 
 /*
