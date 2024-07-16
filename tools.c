@@ -4,8 +4,8 @@ void	free_all_stop(t_data *data, int error, char *message)
 {
 	int	len;
 
-	if (data->limiter)
-		unlink(FILE_TEMP);
+	// if (data->limiter)
+	// 	unlink(FILE_TEMP);
 	if (data->path)
 		free(data->path);
 	if (data->cmd)

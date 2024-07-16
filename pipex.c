@@ -70,14 +70,7 @@ static void	initialize(t_data *data, int ac, char **av)
 	data->outfile = av[ac - 1];
 	i = -1;
 	while (++i < ac - 3)
-	{
-		data->split = ft_split(av[i + 2], ' ');
-		get_path_cmd(data, data->envp, data->split[0]);
-		data->split = free_all_split(data->split);
-		free(data->path);
-		data->path = NULL;
 		data->cmd[i] = av[i + 2];
-	}
 }
 
 void	here_doc(t_data *data, int *ac, char ***av)
@@ -101,13 +94,13 @@ int	main(int ac, char **av, char **envp)
 	data.envp = envp;
 	data.path = NULL;
 	data.split = NULL;
+	data.limiter = NULL;
 	data.cmd = NULL;
-	if (ft_strncmp(av[1], "here_doc", 8) == 0)
-		here_doc(&data, &ac, &av);
-	printf("av[0] = %s\n", av[0]);
+	// if (ft_strncmp(av[1], "here_doc", 8) == 0)
+	// 	here_doc(&data, &ac, &av);
 	initialize(&data, ac, av);
-	printf("infile: %s\noutfile: %s\n", data.infile, data.outfile);
-	exit(0);
+	// printf("infile: %s\noutfile: %s\n", data.infile, data.outfile);
+	// exit(0);
 	input_fd = open(data.infile, O_RDONLY);
 	if (input_fd == -1)
 		free_all_stop(&data, 1, "1");

@@ -32,7 +32,6 @@ typedef struct s_data
 }			t_data;
 
 // pipex.c
-int			open_file(t_data *data, const char *file);
 void		execute_pipeline(t_data *data, int cmd_index, int num_cmds,
 				int input_fd);
 void		execute_child(t_data *data, int cmd_index, int num_cmds,
