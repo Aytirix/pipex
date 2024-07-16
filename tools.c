@@ -4,8 +4,8 @@ void	free_all_stop(t_data *data, int error, char *message)
 {
 	int	len;
 
-	// if (data->limiter)
-	// 	unlink(FILE_TEMP);
+	if (data->limiter)
+		unlink(FILE_TEMP);
 	if (data->path)
 		free(data->path);
 	if (data->cmd)
@@ -29,9 +29,6 @@ void	free_all_stop(t_data *data, int error, char *message)
 	exit(EXIT_SUCCESS);
 }
 
-/*
-** Redirects the standard output to the output file.
-*/
 void	redirect_output(t_data *data)
 {
 	int	outfile_fd;

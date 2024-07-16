@@ -28,16 +28,14 @@ typedef struct s_data
 	char	*outfile;
 	char	**cmd;
 	int		fd[2];
+	int 	input_fd;
 	int		pid;
 }			t_data;
 
 // pipex.c
-void		execute_pipeline(t_data *data, int cmd_index, int num_cmds,
-				int input_fd);
-void		execute_child(t_data *data, int cmd_index, int num_cmds,
-				int input_fd);
-void		execute_parent(t_data *data, int cmd_index, int num_cmds,
-				int input_fd);
+void		execute_pipeline(t_data *data, int cmd_index, int num_cmds);
+void		execute_child(t_data *data, int cmd_index, int num_cmds);
+void		execute_parent(t_data *data, int cmd_index, int num_cmds);
 
 // tools.c
 void		free_all_stop(t_data *data, int error, char *message);
