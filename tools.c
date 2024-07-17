@@ -59,8 +59,7 @@ void	get_path_cmd(t_data *data, char **envp, char *cmd)
 	i = -1;
 	while (path[++i])
 	{
-		data->path = ft_strjoin(path[i], "/", 0);
-		data->path = ft_strjoin(data->path, cmd, 1);
+		create_path(data, cmd, path[i]);
 		if (access(data->path, 0) == 0)
 			break ;
 		free(data->path);
@@ -69,4 +68,16 @@ void	get_path_cmd(t_data *data, char **envp, char *cmd)
 	path = free_all_split(path);
 	if (!data->path)
 		free_all_stop(data, 2, ft_strjoin("zsh: command not found: ", cmd, 0));
+}
+
+void	create_path(t_data *data, char *cmd, char *path)
+{
+	if (ft_strncmp(cmd, "/", 1) == 0 || ft_strncmp(cmd, "./", 2) == 0
+		|| ft_strncmp(cmd, "../", 3) == 0)
+		data->path = ft_strdup(cmd);
+	else
+	{
+		data->path = ft_strjoin(path, "/", 0);
+		data->path = ft_strjoin(data->path, cmd, 1);
+	}
 }

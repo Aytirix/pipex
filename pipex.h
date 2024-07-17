@@ -41,5 +41,6 @@ void		execute_parent(t_data *data, int cmd_index, int num_cmds);
 void		free_all_stop(t_data *data, int error, char *message);
 void		redirect_output(t_data *data);
 void		get_path_cmd(t_data *data, char **envp, char *cmd);
+void create_path(t_data *data, char *cmd, char *path);
 
 #endif

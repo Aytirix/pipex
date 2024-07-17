@@ -44,8 +44,8 @@ $(OBJDIR)/%.o: %.c
 	@echo "$(CYAN)Compiling $< with BONUS=$(BONUS)...$(RESET)"
 	@$(CC) $(FLAGS) -DBONUS=$(BONUS) -I$(LIBFT) -c $< -o $@
 
-bonus: BONUS=1
-bonus: all
+bonus:
+	@$(MAKE) BONUS=1 all --no-print-directory
 
 clean_objs:
 	@echo "$(MAGENTA)Cleaning object files...$(RESET)"
