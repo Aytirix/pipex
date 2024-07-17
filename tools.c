@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tools.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: thmouty <theo@student.42.fr>               +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/07/17 14:55:54 by thmouty           #+#    #+#             */
+/*   Updated: 2024/07/17 14:56:39 by thmouty          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
 void	free_all_stop(t_data *data, int error, char *message)
@@ -80,4 +92,32 @@ void	create_path(t_data *data, char *cmd, char *path)
 		data->path = ft_strjoin(path, "/", 0);
 		data->path = ft_strjoin(data->path, cmd, 1);
 	}
+}
+
+void	here_doc(t_data *data, int *ac, char ***av)
+{
+	char	*line;
+	int		fd;
+
+	data->infile = FILE_TEMP;
+	data->limiter = av[0][2];
+	*ac -= 1;
+	*av += 1;
+	fd = open(FILE_TEMP, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd == -1)
+		free_all_stop(data, 1, "1");
+	while (1)
+	{
+		write(1, "pipe heredoc> ", 14);
+		line = get_next_line(0);
+		if (!line)
+			free_all_stop(data, 1, "1");
+		if (ft_strncmp(line, data->limiter, ft_strlen(data->limiter)) == 0)
+			if (ft_strlen(line) == 1 && ft_strlen(data->limiter) == 0)
+				break ;
+		write(fd, line, ft_strlen(line));
+		free(line);
+	}
+	free(line);
+	close(fd);
 }

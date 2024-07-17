@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pipex.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: thmouty <theo@student.42.fr>               +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/07/17 14:55:54 by thmouty           #+#    #+#             */
+/*   Updated: 2024/07/17 14:56:39 by thmouty          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
 void	execute_pipeline(t_data *data, int cmd_index, int num_cmds)
@@ -49,7 +61,7 @@ void	execute_parent(t_data *data, int cmd_index, int num_cmds)
 		execute_pipeline(data, cmd_index + 1, num_cmds);
 		close(data->fd[0]);
 	}
-	waitpid(data->pid, NULL, 0);
+	waitpid(data->pid, &data->error, 0);
 }
 
 static void	initialize(t_data *data, int ac, char **av)
@@ -71,34 +83,6 @@ static void	initialize(t_data *data, int ac, char **av)
 		data->cmd[i] = av[i + 2];
 }
 
-void	here_doc(t_data *data, int *ac, char ***av)
-{
-	char	*line;
-	int		fd;
-
-	data->infile = FILE_TEMP;
-	data->limiter = av[0][2];
-	*ac -= 1;
-	*av += 1;
-	fd = open(FILE_TEMP, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
-		free_all_stop(data, 1, "1");
-	while (1)
-	{
-		write(1, "pipe heredoc> ", 14);
-		line = get_next_line(0);
-		if (!line)
-			free_all_stop(data, 1, "1");
-		if (ft_strncmp(line, data->limiter, ft_strlen(data->limiter)) == 0)
-			if (ft_strlen(line) == 1 && ft_strlen(data->limiter) == 0)
-				break ;
-		write(fd, line, ft_strlen(line));
-		free(line);
-	}
-	free(line);
-	close(fd);
-}
-
 int	main(int ac, char **av, char **envp)
 {
 	t_data	data;
@@ -109,6 +93,7 @@ int	main(int ac, char **av, char **envp)
 			Usage: infile \"command 1\" \"command 2\" output file\n");
 		return (1);
 	}
+	data.error = 0;
 	data.envp = envp;
 	data.path = NULL;
 	data.split = NULL;
@@ -122,6 +107,6 @@ int	main(int ac, char **av, char **envp)
 		free_all_stop(&data, 1, "1");
 	execute_pipeline(&data, 0, ac - 3);
 	close(data.input_fd);
-	free_all_stop(&data, 0, NULL);
+	free_all_stop(&data, data.error, NULL);
 	return (0);
 }

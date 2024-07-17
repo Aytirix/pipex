@@ -45,7 +45,7 @@ $(OBJDIR)/%.o: %.c
 	@$(CC) $(FLAGS) -DBONUS=$(BONUS) -I$(LIBFT) -c $< -o $@
 
 bonus:
-	@$(MAKE) BONUS=1 all --no-print-directory
+	@$(MAKE) -s BONUS=1 all
 
 clean_objs:
 	@echo "$(MAGENTA)Cleaning object files...$(RESET)"
