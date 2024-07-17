@@ -90,7 +90,8 @@ void	here_doc(t_data *data, int *ac, char ***av)
 		if (!line)
 			free_all_stop(data, 1, "1");
 		if (ft_strncmp(line, data->limiter, ft_strlen(data->limiter)) == 0)
-			break ;
+			if (ft_strlen(line) == 1 && ft_strlen(data->limiter) == 0)
+				break ;
 		write(fd, line, ft_strlen(line));
 		free(line);
 	}
