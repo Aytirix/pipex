@@ -1,13 +1,13 @@
 NAME = pipex
 OBJDIR = objets
+SRC = pipex.c \
+      tools.c
+
 OBJ = $(addprefix $(OBJDIR)/,$(SRC:.c=.o))
 LIBFT = Libft
 LIBFT_A = $(LIBFT)/libft.a
 FLAGS = #-fdiagnostics-color=always -fsanitize=address -g3 #-Wall -Wextra -Werror
 LIBS = -L$(LIBFT) -lft
-
-SRC = pipex.c \
-      tools.c
 
 # Colors
 RED = \033[0;31m
@@ -18,17 +18,26 @@ MAGENTA = \033[0;35m
 CYAN = \033[0;36m
 RESET = \033[0m
 
-BONUS = 1
+BONUS = 0
+BONUS_FLAG_FILE = $(OBJDIR)/.bonus_flag
 
 all: $(LIBFT_A) $(NAME)
 
 $(LIBFT_A):
 	@$(MAKE) -C $(LIBFT) --no-print-directory
 
-$(NAME): $(OBJ)
-	@echo "$(GREEN)Building $(NAME) with BONUS=$(BONUS)...$(RESET)"
+$(NAME): check_bonus_flag $(OBJ)
+	@echo "$(GREEN)Linking $(NAME) with BONUS=$(BONUS)...$(RESET)"
 	@$(CC) $(FLAGS) -DBONUS=$(BONUS) -I$(LIBFT) $(OBJ) -o $@ $(LIBS)
-	@echo "$(BLUE)$(NAME) built successfully!$(RESET)"
+	@echo "$(BLUE)$(NAME) linked successfully!$(RESET)"
+
+check_bonus_flag:
+	@if [ ! -f $(BONUS_FLAG_FILE) ] || [ "$$(cat $(BONUS_FLAG_FILE))" != "$(BONUS)" ]; then \
+		echo "$(BONUS)" > $(BONUS_FLAG_FILE); \
+		$(MAKE) --no-print-directory recompile_objs; \
+	fi
+
+recompile_objs: clean_objs $(OBJ)
 
 $(OBJDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
@@ -38,10 +47,13 @@ $(OBJDIR)/%.o: %.c
 bonus: BONUS=1
 bonus: all
 
-clean:
+clean_objs:
 	@echo "$(MAGENTA)Cleaning object files...$(RESET)"
-	@rm -rf $(OBJDIR)
+	@rm -rf $(OBJDIR)/*.o
+
+clean: clean_objs
 	@$(MAKE) -C $(LIBFT) clean --no-print-directory
+	@rm -f $(BONUS_FLAG_FILE)
 
 fclean: clean
 	@echo "$(RED)Cleaning all files...$(RESET)"
@@ -50,4 +62,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re bonus
+.PHONY: all clean clean_objs fclean re bonus check_bonus_flag recompile_objs

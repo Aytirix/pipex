@@ -114,7 +114,7 @@ int	main(int ac, char **av, char **envp)
 	data.split = NULL;
 	data.limiter = NULL;
 	data.cmd = NULL;
-	if (ft_strncmp(av[1], "here_doc", 8) == 0)
+	if (BONUS && ft_strncmp(av[1], "here_doc", 8) == 0)
 		here_doc(&data, &ac, &av);
 	initialize(&data, ac, av);
 	data.input_fd = open(data.infile, O_RDONLY);
