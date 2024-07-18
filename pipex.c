@@ -16,11 +16,11 @@ void	execute_pipeline(t_data *data, int cmd_index, int num_cmds)
 {
 	if (cmd_index < num_cmds - 1)
 		if (pipe(data->fd) == -1)
-			free_all_stop(data, 1, "1");
+			free_all_stop(data, 0, 1, "1");
 	data->pid = fork();
 	if (data->pid == -1)
-		free_all_stop(data, 1, "1");
-	if (data->pid == 0)
+		free_all_stop(data, 0, 1, "1");
+	if (data->pid == 0 && data->input_fd != -5)
 		execute_child(data, cmd_index, num_cmds);
 	else
 		execute_parent(data, cmd_index, num_cmds);
@@ -31,13 +31,13 @@ void	execute_child(t_data *data, int cmd_index, int num_cmds)
 	if (data->input_fd != STDIN_FILENO)
 	{
 		if (dup2(data->input_fd, STDIN_FILENO) == -1)
-			free_all_stop(data, 1, "1");
+			free_all_stop(data, 0, 1, "1");
 		close(data->input_fd);
 	}
 	if (cmd_index < num_cmds - 1)
 	{
 		if (dup2(data->fd[1], STDOUT_FILENO) == -1)
-			free_all_stop(data, 1, "1");
+			free_all_stop(data, 0, 1, "1");
 		close(data->fd[0]);
 		close(data->fd[1]);
 	}
@@ -46,13 +46,13 @@ void	execute_child(t_data *data, int cmd_index, int num_cmds)
 	data->split = ft_split(data->cmd[cmd_index], ' ');
 	get_path_cmd(data, data->envp, data->split[0]);
 	if (execve(data->path, data->split, data->envp) == -1)
-		free_all_stop(data, 1, "1");
+		free_all_stop(data, 0, 1, "1");
 	data->split = free_all_split(data->split);
 }
 
 void	execute_parent(t_data *data, int cmd_index, int num_cmds)
 {
-	if (data->input_fd != STDIN_FILENO)
+	if (data->input_fd != -5 && data->input_fd != STDIN_FILENO)
 		close(data->input_fd);
 	if (cmd_index < num_cmds - 1)
 	{
@@ -64,23 +64,28 @@ void	execute_parent(t_data *data, int cmd_index, int num_cmds)
 	waitpid(data->pid, &data->error, 0);
 }
 
-static void	initialize(t_data *data, int ac, char **av)
+static void	initialize(t_data *data, int *ac, char ***av)
 {
 	int	i;
 
-	data->cmd = ft_calloc(ac - 2, sizeof(char *));
+	data->cmd = ft_calloc(*ac - 2, sizeof(char *));
 	if (!data->cmd)
-		free_all_stop(data, 1, NULL);
+		free_all_stop(data, 0, 1, NULL);
 	if (data->limiter == NULL)
 	{
-		if (access(av[1], F_OK) == -1 || access(av[1], R_OK) == -1)
-			free_all_stop(data, 1, "1");
-		data->infile = av[1];
+		data->infile = (*av)[1];
+		data->input_fd = open(data->infile, O_RDONLY);
+		if (data->input_fd == -1)
+		{
+			printf("zsh: aucun fichier ou dossier de ce type: %s\n",
+				data->infile);
+			data->input_fd = -5;
+		}
 	}
-	data->outfile = av[ac - 1];
+	data->outfile = (*av)[*ac - 1];
 	i = -1;
-	while (++i < ac - 3)
-		data->cmd[i] = av[i + 2];
+	while (++i < *ac - 3)
+		data->cmd[i] = (*av)[i + 2];
 }
 
 int	main(int ac, char **av, char **envp)
@@ -101,12 +106,9 @@ int	main(int ac, char **av, char **envp)
 	data.cmd = NULL;
 	if (BONUS && ft_strncmp(av[1], "here_doc", 8) == 0)
 		here_doc(&data, &ac, &av);
-	initialize(&data, ac, av);
-	data.input_fd = open(data.infile, O_RDONLY);
-	if (data.input_fd == -1)
-		free_all_stop(&data, 1, "1");
+	initialize(&data, &ac, &av);
 	execute_pipeline(&data, 0, ac - 3);
 	close(data.input_fd);
-	free_all_stop(&data, data.error, NULL);
+	free_all_stop(&data, 0, WEXITSTATUS(data.error), NULL);
 	return (0);
 }

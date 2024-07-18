@@ -12,7 +12,7 @@
 
 #include "pipex.h"
 
-void	free_all_stop(t_data *data, int error, char *message)
+void	free_all_stop(t_data *data, int is_malloc, int error, char *message)
 {
 	int	len;
 
@@ -34,9 +34,9 @@ void	free_all_stop(t_data *data, int error, char *message)
 			if (message[ft_strlen(message) - 1] != '\n')
 				write(STDERR_FILENO, "\n", 1);
 		}
-		if (error == 2)
+		if (is_malloc)
 			free(message);
-		exit(EXIT_FAILURE);
+		exit(error);
 	}
 	exit(EXIT_SUCCESS);
 }
@@ -45,13 +45,16 @@ void	redirect_output(t_data *data)
 {
 	int	outfile_fd;
 
-	outfile_fd = open(data->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (data->limiter)
+		outfile_fd = open(data->outfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	else
+		outfile_fd = open(data->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (outfile_fd == -1)
-		free_all_stop(data, 1, "1");
+		free_all_stop(data, 0, 1, "1");
 	if (dup2(outfile_fd, STDOUT_FILENO) == -1)
 	{
 		close(outfile_fd);
-		free_all_stop(data, 1, "1");
+		free_all_stop(data, 0, 1, "1");
 	}
 	if (close(outfile_fd) == -1)
 		perror("Failed to close the file descriptor");
@@ -67,7 +70,7 @@ void	get_path_cmd(t_data *data, char **envp, char *cmd)
 		i++;
 	path = ft_split(envp[i] + 5, ':');
 	if (!path)
-		free_all_stop(data, 1, "Failed to allocate memory\n");
+		free_all_stop(data, 0, 1, "Failed to allocate memory\n");
 	i = -1;
 	while (path[++i])
 	{
@@ -79,7 +82,8 @@ void	get_path_cmd(t_data *data, char **envp, char *cmd)
 	}
 	path = free_all_split(path);
 	if (!data->path)
-		free_all_stop(data, 2, ft_strjoin("zsh: command not found: ", cmd, 0));
+		free_all_stop(data, 1, 127, ft_strjoin("zsh: command not found: ", cmd,
+				0));
 }
 
 void	create_path(t_data *data, char *cmd, char *path)
@@ -97,27 +101,27 @@ void	create_path(t_data *data, char *cmd, char *path)
 void	here_doc(t_data *data, int *ac, char ***av)
 {
 	char	*line;
-	int		fd;
 
-	data->infile = FILE_TEMP;
 	data->limiter = av[0][2];
+	data->infile = FILE_TEMP;
 	*ac -= 1;
 	*av += 1;
-	fd = open(FILE_TEMP, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
-		free_all_stop(data, 1, "1");
+	data->input_fd = open(FILE_TEMP, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (data->input_fd == -1)
+		free_all_stop(data, 0, 1, "1");
 	while (1)
 	{
 		write(1, "pipe heredoc> ", 14);
 		line = get_next_line(0);
 		if (!line)
-			free_all_stop(data, 1, "1");
+			free_all_stop(data, 0, 1, "1");
 		if (ft_strncmp(line, data->limiter, ft_strlen(data->limiter)) == 0)
-			if (ft_strlen(line) == 1 && ft_strlen(data->limiter) == 0)
+			if (ft_strlen(line) - 1 == ft_strlen(data->limiter))
 				break ;
-		write(fd, line, ft_strlen(line));
+		write(data->input_fd, line, ft_strlen(line));
 		free(line);
 	}
 	free(line);
-	close(fd);
+	close(data->input_fd);
+	data->input_fd = open(FILE_TEMP, O_RDONLY);
 }
