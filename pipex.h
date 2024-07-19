@@ -41,7 +41,7 @@ typedef struct s_data
 	char	**cmd;
 	int		fd[2];
 	int		input_fd;
-	int		pid;
+	int		*pid;
 	int		error;
 }			t_data;
 

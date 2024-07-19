@@ -17,10 +17,10 @@ void	execute_pipeline(t_data *data, int cmd_index, int num_cmds)
 	if (cmd_index < num_cmds - 1)
 		if (pipe(data->fd) == -1)
 			free_all_stop(data, 0, 1, "1");
-	data->pid = fork();
-	if (data->pid == -1)
+	data->pid[cmd_index] = fork();
+	if (data->pid[cmd_index] == -1)
 		free_all_stop(data, 0, 1, "1");
-	if (data->pid == 0 && data->input_fd != -5)
+	if (data->pid[cmd_index] == 0 && data->input_fd != -5)
 		execute_child(data, cmd_index, num_cmds);
 	else
 		execute_parent(data, cmd_index, num_cmds);
@@ -52,6 +52,8 @@ void	execute_child(t_data *data, int cmd_index, int num_cmds)
 
 void	execute_parent(t_data *data, int cmd_index, int num_cmds)
 {
+	int	i;
+
 	if (data->input_fd != -5 && data->input_fd != STDIN_FILENO)
 		close(data->input_fd);
 	if (cmd_index < num_cmds - 1)
@@ -61,7 +63,9 @@ void	execute_parent(t_data *data, int cmd_index, int num_cmds)
 		execute_pipeline(data, cmd_index + 1, num_cmds);
 		close(data->fd[0]);
 	}
-	waitpid(data->pid, &data->error, 0);
+	i = 0;
+	while (i <= cmd_index)
+		waitpid(data->pid[i++], &data->error, 0);
 }
 
 static void	initialize(t_data *data, int *ac, char ***av)
@@ -69,6 +73,7 @@ static void	initialize(t_data *data, int *ac, char ***av)
 	int	i;
 
 	data->cmd = ft_calloc(*ac - 2, sizeof(char *));
+	data->pid = ft_calloc(*ac - 2, sizeof(char *));
 	if (!data->cmd)
 		free_all_stop(data, 0, 1, NULL);
 	if (data->limiter == NULL)
@@ -77,7 +82,7 @@ static void	initialize(t_data *data, int *ac, char ***av)
 		data->input_fd = open(data->infile, O_RDONLY);
 		if (data->input_fd == -1)
 		{
-			printf("zsh: aucun fichier ou dossier de ce type: %s\n",
+			ft_printf("zsh: aucun fichier ou dossier de ce type: %s\n",
 				data->infile);
 			data->input_fd = -5;
 		}
@@ -100,6 +105,7 @@ int	main(int ac, char **av, char **envp)
 	}
 	data.error = 0;
 	data.envp = envp;
+	data.pid = NULL;
 	data.path = NULL;
 	data.split = NULL;
 	data.limiter = NULL;

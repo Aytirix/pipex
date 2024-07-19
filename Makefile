@@ -6,7 +6,7 @@ SRC = pipex.c \
 OBJ = $(addprefix $(OBJDIR)/,$(SRC:.c=.o))
 LIBFT = Libft
 LIBFT_A = $(LIBFT)/libft.a
-FLAGS = -g3 #-Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror
 LIBS = -L$(LIBFT) -lft
 
 # Colors
@@ -32,6 +32,7 @@ $(NAME): check_bonus_flag $(OBJ)
 	@echo "$(BLUE)$(NAME) linked successfully!$(RESET)"
 
 check_bonus_flag:
+	@mkdir -p $(OBJDIR)
 	@if [ ! -f $(BONUS_FLAG_FILE) ] || [ "$$(cat $(BONUS_FLAG_FILE))" != "$(BONUS)" ]; then \
 		echo "$(BONUS)" > $(BONUS_FLAG_FILE); \
 		$(MAKE) --no-print-directory recompile_objs; \

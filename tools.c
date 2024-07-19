@@ -14,14 +14,14 @@
 
 void	free_all_stop(t_data *data, int is_malloc, int error, char *message)
 {
-	int	len;
-
 	if (data->limiter)
 		unlink(FILE_TEMP);
 	if (data->path)
 		free(data->path);
 	if (data->cmd)
 		free(data->cmd);
+	if (data->pid)
+		free(data->pid);
 	if (data->split)
 		data->split = free_all_split(data->split);
 	if (error)
