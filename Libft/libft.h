@@ -43,6 +43,7 @@ char		*ft_strchr(const char *s, int c);
 char		*ft_strdup(char *str);
 void		ft_striteri(char *s, void (*f)(unsigned int, char*));
 char		*ft_strjoin(char const *s1, char const *s2, int s_free);
+char		*ft_strjoinc(char c);
 size_t		ft_strlcat(char *dst, const char *src, size_t size);
 size_t		ft_strlcpy(char *dst, const char *src, size_t size);
 size_t		ft_strlen(const char *c);
@@ -99,6 +100,7 @@ int			ft_putstr_fd(char *s, int fd);
 
 //  Printf
 int			ft_printf(const char *str, ...);
+int			ft_fprintf(int fd, const char *str, ...);
 int			ft_putnbr_base_fd(long long nb, char *base, int fd);
 int			ft_putunbr_base_fd(unsigned long long nb, char *base, int fd);
 int			ft_putaddress(unsigned long long address, int fd);
