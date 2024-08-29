@@ -38,6 +38,7 @@ SRC = 	chain_list/ft_lstadd_back.c \
 		output/ft_putnbr_base_fd.c \
 		output/ft_putstr_fd.c \
 		printf/ft_printf.c \
+		string/ft_joinf.c \
 		string/ft_split.c \
 		string/ft_strchr.c \
 		string/ft_strdup.c \
@@ -53,7 +54,9 @@ SRC = 	chain_list/ft_lstadd_back.c \
 		string/ft_strtrim.c \
 		string/ft_substr.c \
 		math/ft_power.c \
-		math/ft_abs.c
+		math/ft_abs.c \
+		global/global.c \
+		global/global2.c
 
 OBJDIR = objets
 OBJ = $(addprefix $(OBJDIR)/,$(SRC:.c=.o))
