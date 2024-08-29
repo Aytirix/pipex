@@ -1,8 +1,5 @@
-
-/Libft
 *.o
 *.a
-pipex-tester
 /.vscode
 pipex
 objets/
