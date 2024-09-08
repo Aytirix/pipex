@@ -80,7 +80,7 @@ static char	*checker(const char *str, va_list args, int dollar)
  * // result contient "Hello, world!" et `str1` a été libéré et mis à NULL.
  * @endcode
  */
-char	*ft_joinf(const char *str, ...)
+char	*ft_strjoinf(const char *str, ...)
 {
 	char	*line;
 	char	*tmp;

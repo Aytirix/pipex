@@ -38,7 +38,7 @@ SRC = 	chain_list/ft_lstadd_back.c \
 		output/ft_putnbr_base_fd.c \
 		output/ft_putstr_fd.c \
 		printf/ft_printf.c \
-		string/ft_joinf.c \
+		string/ft_strjoinf.c \
 		string/ft_split.c \
 		string/ft_strchr.c \
 		string/ft_strdup.c \
